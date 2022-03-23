@@ -2,7 +2,7 @@
 
 namespace simulation {
 
-	SingleSpringModel::SingleSpringModel() {
+	ChainSpringModel::ChainSpringModel() {
 		head = std::make_shared<Particle>(vec3f{0.f, 0.f, 0.f}, mass, true);
 		for (unsigned int i = 0; i < particlesCount; i++) {
 			particles.emplace_back(std::make_shared<Particle>(vec3f{static_cast<float>(i+1) * springLength, 0, 0.f}, mass));

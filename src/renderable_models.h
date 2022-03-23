@@ -21,7 +21,7 @@ namespace simulation {
 // Chain
 //
 	template <typename View>
-	void render(SingleSpringModel const &model, View const &view) {
+	void render(ChainSpringModel const &model, View const &view) {
 
 		auto mass_geometry = Sphere(Radius(1.f));
 		auto mass_style = Phong(Colour(1.f, 0.f, 1.f), //

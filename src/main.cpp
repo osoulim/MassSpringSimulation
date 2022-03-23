@@ -86,7 +86,7 @@ int main(void) {
 		}
 
 		if (panel::loadSingleSpringModel) {
-			auto newModel = std::make_unique<SingleSpringModel>();
+			auto newModel = std::make_unique<ChainSpringModel>();
 			modelRenderable = makeModelRenderable(*newModel, view);
 			model = std::move(newModel);
 			panel::playModel = false;

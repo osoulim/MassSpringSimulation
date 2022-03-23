@@ -119,16 +119,16 @@ namespace simulation {
 	};
 
 
-	class SingleSpringModel: public Model {
+	class ChainSpringModel: public Model {
 	public:
-		SingleSpringModel();
+		ChainSpringModel();
 
 		std::shared_ptr<Particle> head;
 
-		unsigned int particlesCount = 1;
+		unsigned int particlesCount = 5;
 		float mass = 0.1f;
-		float springLength = 5.f;
-		float springRest = 1.f;
+		float springLength = 3.f;
+		float springRest = 3.f;
 		float springK = 2;
 		float springC = 0.1;
 	};
