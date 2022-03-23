@@ -137,9 +137,9 @@ namespace simulation {
 		float springLength = 1.f;
 		float springRest = springLength;
 		float springK = 2500;
-		float springC = 0.7;
+		float springC = 0.5;
 
-		float xOffset = clothWidth * springLength / 2;
+		float offset = (clothWidth - 1) * springLength / 2;
 	};
 
 } // namespace simulation

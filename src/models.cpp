@@ -35,7 +35,7 @@ namespace simulation {
 			for (unsigned int y = 0; y < clothWidth; y++) {
 				bool isStationary = (x == 0 && (y==0 || y == clothWidth-1));
 				particles[x].emplace_back(std::make_shared<Particle>(
-						vec3f{x * springLength - xOffset, 0, y * springLength},
+						vec3f{y * springLength - offset, 0, x * springLength},
 						mass,
 						isStationary));
 			}
@@ -69,7 +69,7 @@ namespace simulation {
 	void ClothModel::reset() {
 		for (unsigned int x = 0; x < particles.size(); x++) {
 			for (unsigned int y = 0; y < particles[x].size(); y++) {
-				particles[x][y]->position = vec3f{x * springLength - xOffset, 0, y * springLength};
+				particles[x][y]->position = vec3f{y * springLength - offset, 0, x * springLength};
 				particles[x][y]->velocity = vec3f{0.f};
 			}
 		}

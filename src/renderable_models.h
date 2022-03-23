@@ -52,37 +52,32 @@ namespace simulation {
 	}
 
 	//
-// Chain
+// Cloth
 //
 	template <typename View>
 	void render(ClothModel const &model, View const &view) {
 
-		auto mass_geometry = Sphere(Radius(.1f));
-		auto mass_style = Phong(Colour(1.f, 0.f, 1.f), //
+		auto mass_geometry = TriangleSoup();
+		auto mass_style = Phong(Colour(vec3f{48.f, 120.f, 242.f} / 250.f), //
 								LightPosition(100.f, 100.f, 100.f));
 		static auto mass_renderable =
-				createInstancedRenderable(mass_geometry, mass_style);
-		static auto arm_renderable =
-				createRenderable(PolyLine<PrimitiveType::LINE_STRIP>(), // geometry
-								 LineStyle(Colour(1.f, 1.f, 0.f))       // style
-				);
+				createRenderable(mass_geometry, mass_style);
 
-		auto arm_geometry = PolyLine<PrimitiveType::LINE_STRIP>(Point(0.f, 0.f, 0.f));
-		for (auto &particleArray: model.particles) {
-			for (auto &particle: particleArray) {
-				auto point = particle->position;
-				auto M = translate(mat4f{1.f}, point);
-				addInstance(mass_renderable, M);
+		for (unsigned int x = 1; x < model.particles.size(); x++) {
+			for (unsigned int y = 1; y < model.particles[x].size(); y++) {
+				auto p1 = model.particles[x-1][y-1]->position;
+				auto p2 = model.particles[x-1][y]->position;
+				auto p3 = model.particles[x][y-1]->position;
+				auto p4 = model.particles[x][y]->position;
 
-				arm_geometry.push_back(Point(point));
+				mass_geometry.push_back(Triangle{Point1(p1), Point2(p2), Point3(p3)});
+				mass_geometry.push_back(Triangle{Point1(p2), Point2(p4), Point3(p3)});
 			}
 		}
 
-		updateRenderable(arm_geometry,                     // new position
-						 LineStyle(Colour(1.f, 1.f, 0.f)), // new shading
-						 arm_renderable);
-
-		draw(arm_renderable, view);
+		updateRenderable(mass_geometry,
+						 mass_style,
+						 mass_renderable);
 		draw(mass_renderable, view);
 	}
 
