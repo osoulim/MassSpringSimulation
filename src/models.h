@@ -12,18 +12,13 @@ namespace simulation {
 	using vec2f = glm::vec2;
 	using vec3f = glm::vec3;
 
-	struct Model {
-		virtual ~Model() = default;
-		virtual void reset() = 0;
-		virtual void step(float dt) = 0;
-	};
-
 	struct Particle {
 		explicit Particle(vec3f position, float mass=1.f, bool isStationary=false)
-			: position(position), mass(mass), isStationary(isStationary) {}
+			: initialPosition(position), position(position), mass(mass), isStationary(isStationary) {}
 
 		Particle() = default;
 
+		vec3f initialPosition = vec3f{0.f};
 		vec3f position = vec3f{0.f};
 		vec3f velocity = vec3f{0.f};
 		float mass = 1.f;
@@ -97,22 +92,40 @@ namespace simulation {
 		}
 	};
 
+	struct Model {
+		virtual ~Model() = default;
+		void reset() {
+			for (auto &particle: particles) {
+				particle->position = particle->initialPosition;
+				particle->velocity = vec3f{0.f};
+			}
+		};
+
+		void step(float dt) {
+			for (auto &spring: springs) {
+				spring.applySpringForces(dt);
+			}
+			for (auto &particle: particles) {
+				particle->applyGravity(gravity, dt);
+			}
+			for (auto &particle: particles) {
+				particle->applySpeedOnPosition(dt);
+			}
+		};
+
+		float gravity = 9.81;
+		std::vector<std::shared_ptr<Particle>> particles;
+		std::vector<Spring> springs;
+	};
 
 
 	class SingleSpringModel: public Model {
 	public:
 		SingleSpringModel();
 
-		void reset() override;
-		void step(float dt) override;
-
 		std::shared_ptr<Particle> head;
 
-		std::vector<std::shared_ptr<Particle>> particles;
-		std::vector<Spring> springs;
-
 		unsigned int particlesCount = 1;
-		float gravity = 9.81f;
 		float mass = 0.1f;
 		float springLength = 5.f;
 		float springRest = 1.f;
@@ -125,16 +138,9 @@ namespace simulation {
 	public:
 		ClothModel();
 
-		void reset() override;
-		void step(float dt) override;
-
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
 
-		std::vector<std::shared_ptr<Particle>> particles;
-		std::vector<Spring> springs;
-
 		unsigned int resolution = 25;
-		float gravity = 9.81f;
 		float mass = 1.f;
 		float springLength = 1.f;
 		float springRest = springLength;

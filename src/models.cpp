@@ -10,25 +10,6 @@ namespace simulation {
 		}
 	}
 
-	void SingleSpringModel::reset() {
-		for (unsigned int i = 0; i < particles.size(); i++) {
-			particles[i]->position = vec3f{static_cast<float>(i+1) * springLength, 0, 0.f};
-			particles[i]->velocity = vec3f {0.f};
-		}
-	}
-
-	void SingleSpringModel::step(float dt) {
-		for (auto &spring: springs) {
-			spring.applySpringForces(dt);
-		}
-		for (auto &particle: particles) {
-			particle->applyGravity(gravity, dt);
-		}
-		for (auto &particle: particles) {
-			particle->applySpeedOnPosition(dt);
-		}
-	}
-
 	ClothModel::ClothModel() {
 		for (unsigned int x = 0; x < resolution; x++) {
 			for (unsigned int y = 0; y < resolution; y++) {
@@ -63,27 +44,6 @@ namespace simulation {
 			}
 		}
 
-	}
-
-	void ClothModel::reset() {
-		for (unsigned int x = 0; x < resolution; x++) {
-			for (unsigned int y = 0; y < resolution; y++) {
-				getParticle(x, y)->position = vec3f{y * springLength - offset, 0, x * springLength};
-				getParticle(x, y)->velocity = vec3f{0.f};
-			}
-		}
-	}
-
-	void ClothModel::step(float dt) {
-		for (auto &spring: springs) {
-			spring.applySpringForces(dt);
-		}
-		for (auto &particle: particles) {
-			particle->applyGravity(gravity, dt);
-		}
-		for (auto &particle: particles) {
-			particle->applySpeedOnPosition(dt);
-		}
 	}
 
 	std::shared_ptr<Particle> ClothModel::getParticle(unsigned x, unsigned y) const {
