@@ -4,26 +4,35 @@ namespace simulation {
 
 	SingleSpringModel::SingleSpringModel() {
 		head = std::make_shared<Particle>(vec3f{0.f, 0.f, 0.f}, mass, true);
-		tail = std::make_shared<Particle>(vec3f{0.f, -springLength, 0.f}, mass);
-
-		spring = Spring();
-		spring.head = head;
-		spring.tail = tail;
-		spring.k = springK;
-		spring.c = springC;
+		for (unsigned int i = 0; i < particlesCount; i++) {
+			particles.emplace_back(std::make_shared<Particle>(vec3f{static_cast<float>(i+1) * springLength, 0, 0.f}, mass));
+			Spring spring = Spring();
+			spring.head = i == 0 ? head : particles[i-1];
+			spring.tail = particles[i];
+			spring.k = springK;
+			spring.c = springC;
+			spring.restSize = springRest;
+			springs.emplace_back(spring);
+		}
 	}
 
 	void SingleSpringModel::reset() {
-		tail->position = vec3f{0.f, -springLength, 0.f};
-		tail->velocity = vec3f {0.f};
+		for (unsigned int i = 0; i < particles.size(); i++) {
+			particles[i]->position = vec3f{static_cast<float>(i+1) * springLength, 0, 0.f};
+			particles[i]->velocity = vec3f {0.f};
+		}
 	}
 
 	void SingleSpringModel::step(float dt) {
-		spring.applySpringForces(dt);
-
-		tail->applyForce(vec3f{0.f, -gravity, 0.f}, dt);
-
-		tail->applySpeedOnPosition(dt);
+		for (auto &spring: springs) {
+			spring.applySpringForces(dt);
+		}
+		for (auto &particle: particles) {
+			particle->applyForce(vec3f{0.f, -gravity, 0.f}, dt);
+		}
+		for (auto &particle: particles) {
+			particle->applySpeedOnPosition(dt);
+		}
 	}
 
 	//

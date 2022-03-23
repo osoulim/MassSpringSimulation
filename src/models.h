@@ -46,7 +46,7 @@ namespace simulation {
 	struct Spring {
 		std::shared_ptr<Particle> head;
 		std::shared_ptr<Particle> tail;
-		float restSize = 5.f;
+		float restSize = 1.f;
 		float k = 5;
 		float c = 2;
 
@@ -95,14 +95,17 @@ namespace simulation {
 		void step(float dt) override;
 
 		std::shared_ptr<Particle> head;
-		std::shared_ptr<Particle> tail;
-		Spring spring;
 
+		std::vector<std::shared_ptr<Particle>> particles;
+		std::vector<Spring> springs;
+
+		unsigned int particlesCount = 1;
 		float gravity = 9.81f;
-		float mass = 0.5f;
-		float springLength = 10.f;
-		float springK = 5;
-		float springC = 0.5;
+		float mass = 0.1f;
+		float springLength = 5.f;
+		float springRest = 1.f;
+		float springK = 2;
+		float springC = 0.1;
 	};
 
 //
