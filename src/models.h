@@ -61,6 +61,11 @@ namespace simulation {
 		Spring (std::shared_ptr<Particle> head, std::shared_ptr<Particle> tail, float restSize, float k, float c)
 			: head(std::move(head)), tail(std::move(tail)), restSize(restSize), k(k), c(c) {};
 
+		Spring (std::shared_ptr<Particle> head, std::shared_ptr<Particle> tail, float k, float c)
+				: head(std::move(head)), tail(std::move(tail)), k(k), c(c) {
+			restSize = glm::length(this->head->position - this->tail->position);
+		};
+
 		vec3f springForce() {
 			vec3f springVec = head->position - tail->position;
 			float size = glm::length(springVec);
@@ -141,7 +146,6 @@ namespace simulation {
 		float springRest = 2.f;
 		float springK = 2;
 		float springC = 0.5;
-		float airK = .1f;
 	};
 
 
@@ -154,11 +158,27 @@ namespace simulation {
 		unsigned int resolution = 25;
 		float mass = 1.f;
 		float springLength = 1.f;
-		float springRest = springLength;
 		float springK = 2500;
 		float springC = 1;
-		float airK = .1f;
+
 		float offset = (resolution - 1) * springLength / 2;
 	};
+
+//	class JellyCubeModel: public Model {
+//	public:
+//		JellyCubeModel();
+//
+//		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
+//
+//		unsigned int resolution = 15;
+//		float mass = 1.f;
+//		float springLength = 0.1f;
+//		float springRest = springLength;
+//		float springK = 250;
+//		float springC = 1;
+//
+//		float offset = (resolution - 1) * springLength / 2;
+//	};
+
 
 } // namespace simulation
