@@ -17,9 +17,8 @@ extern bool playModel;
 extern bool resetModel;
 extern bool stepModel;
 extern float dt;
-extern bool loadPendulumModel;
+extern bool loadSingleSpringModel;
 extern bool loadDoublePendulumModel;
-extern bool loadParticleModel;
 
 // reset
 extern bool resetView;

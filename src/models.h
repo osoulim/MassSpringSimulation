@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace simulation {
 
@@ -17,49 +18,92 @@ namespace simulation {
 	};
 
 	struct Particle {
-		explicit Particle(vec3f position) : position(position) {}
-		Particle(vec3f position, vec3f velocity) : position(position), velocity(velocity) {}
+		explicit Particle(vec3f position, float mass=1.f, bool isStationary=false)
+			: position(position), mass(mass), isStationary(isStationary) {}
 
-		vec3f position;
+		Particle() = default;
+
+		vec3f position = vec3f{0.f};
 		vec3f velocity = vec3f{0.f};
-		vec3f force = vec3f{0.f};
 		float mass = 1.f;
-		bool isStationary;
+		bool isStationary{false};
+
+		void applyForce(vec3f force, float dt) {
+			if (isStationary) {
+				return;
+			}
+			velocity += (force / mass) * dt;
+		};
+
+		void applySpeedOnPosition(float dt) {
+			if (isStationary) {
+				return;
+			}
+			position += velocity * dt;
+		}
 	};
 
 	struct Spring {
 		std::shared_ptr<Particle> head;
 		std::shared_ptr<Particle> tail;
+		float restSize = 5.f;
+		float k = 5;
+		float c = 2;
+
+		vec3f springForce() {
+			vec3f springVec = head->position - tail->position;
+			float size = glm::length(springVec);
+			float forceAmount = -k * (size - restSize);
+			vec3f forceVector = forceAmount * glm::normalize(springVec);
+			return forceVector;
+		}
+		vec3f headSpringForce() {
+			return springForce();
+		}
+
+		vec3f tailSpringForce() {
+			return -springForce();
+		}
+
+		vec3f headDampForce() {
+			vec3f springVec = glm::normalize(head->position - tail->position);
+			float projectedSpeed = glm::dot(head->velocity, springVec);
+			vec3f dampForce = -projectedSpeed * c * springVec;
+			return dampForce;
+		}
+
+		vec3f tailDampForce() {
+			vec3f springVec = glm::normalize(tail->position - head->position);
+			float projectedSpeed = glm::dot(tail->velocity, springVec);
+			vec3f dampForce = -projectedSpeed * c * springVec;
+			return dampForce;
+		}
+
+		void applySpringForces(float dt) {
+			head->applyForce(headSpringForce() + headDampForce(), dt);
+			tail->applyForce(tailSpringForce() + tailDampForce(), dt);
+		}
 	};
 
-//
-// Small angle pendulum
-//
-	class SmallAnglePendulumModel : public Model {
+
+
+	class SingleSpringModel: public Model {
 	public:
-		SmallAnglePendulumModel();
+		SingleSpringModel();
 
 		void reset() override;
-
 		void step(float dt) override;
 
-	public:
-		// constants
-		float const gravity = 9.81f;
-		float const theta0 = 0.5f;
-		float const armLength = 5.f;
-		float const mass = 1.f;
+		std::shared_ptr<Particle> head;
+		std::shared_ptr<Particle> tail;
+		Spring spring;
 
-		// dependent variables
-		float t = 0.f;
-		float theta = theta0;
+		float gravity = 9.81f;
+		float mass = 0.5f;
+		float springLength = 10.f;
+		float springK = 5;
+		float springC = 0.5;
 	};
-
-// free functions
-	float smallAnglePendulum(float t, float theta0, float l, float mass,
-							 float graivty);
-
-	vec3f pendulumPosition(float theta, float l);
 
 //
 // Double Pendulum
@@ -90,22 +134,6 @@ namespace simulation {
 		// momentum
 		float p0 = 0.f;
 		float p1 = 0.f;
-	};
-
-//
-// Particle Model
-//
-	class ParticleModel : public Model {
-	public:
-		ParticleModel();
-
-		void reset() override;
-
-		void step(float dt) override;
-
-	public:
-		std::vector<Particle> particles;
-		float bounds = 10.f;
 	};
 
 } // namespace simulation

@@ -21,7 +21,7 @@ namespace simulation {
 // Pendulum model
 //
 template <typename View>
-void render(SmallAnglePendulumModel const &model, View const &view) {
+void render(SingleSpringModel const &model, View const &view) {
 
   auto mass_geometry = Sphere(Radius(1.f));
   auto mass_style = Phong(Colour(1.f, 0.f, 1.f), //
@@ -29,7 +29,7 @@ void render(SmallAnglePendulumModel const &model, View const &view) {
   static auto mass_renderable =
       createInstancedRenderable(mass_geometry, mass_style);
 
-  auto point = pendulumPosition(model.theta, model.armLength);
+  auto point = model.tail->position;
 
   auto M = translate(mat4f{1.f}, point);
   addInstance(mass_renderable, M);
@@ -83,33 +83,6 @@ void render(DoublePendulumModel const &model, View const &view) {
 
   draw(arm_renderable, view);
   draw(mass_renderable, view);
-}
-
-//
-// Particle Model
-//
-template <typename View>
-void render(ParticleModel const &model, View const &view) {
-  // static: only initiallized once, the first time this function is called.
-  // This isn't the most elegant method to do this but it works. Just put your
-  // draw calls in here.
-
-  static auto point_renders = createInstancedRenderable(
-      Sphere(Radius(0.25f)), // geometry
-      Phong(Colour(1.f, 0.4f, 0.2f),
-            LightPosition(100.f, 100.f, 100.f)) // style
-  );
-
-  // load up renderable
-  auto const &particles = model.particles;
-
-  for (auto const &particle : particles) {
-    auto M = translate(mat4f{1.f}, particle.x);
-    addInstance(point_renders, M);
-  }
-
-  // draw the renderable
-  draw(point_renders, view);
 }
 
 //

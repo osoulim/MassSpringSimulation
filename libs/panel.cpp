@@ -5,18 +5,17 @@
 namespace panel {
 
 // default values
-bool showPanel = false;
+bool showPanel = true;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 // animation
 bool playModel = false;
 bool resetModel = false;
 bool stepModel = false;
-float dt = 0.01f;
+float dt = 0.05f;
 
-bool loadPendulumModel = false;
+bool loadSingleSpringModel = false;
 bool loadDoublePendulumModel = false;
-bool loadParticleModel = false;
 
 // reset
 bool resetView = false;
@@ -45,9 +44,8 @@ void updateMenu() {
 
     Spacing();
     if (CollapsingHeader("Models")) {
-      loadPendulumModel = Button("Pendulum");
+      loadSingleSpringModel = Button("Pendulum");
       loadDoublePendulumModel = Button("Double Pendulum");
-      loadParticleModel = Button("Particles");
     }
 
     Spacing();

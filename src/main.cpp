@@ -71,7 +71,7 @@ int main(void) {
   auto point_renders = createInstancedRenderable(point_geometry, point_style);
 
   // this assigns the new model
-  auto defaultModel = std::make_unique<SmallAnglePendulumModel>();
+  auto defaultModel = std::make_unique<SingleSpringModel>();
   auto modelRenderable = makeModelRenderable(*defaultModel, view);
   std::unique_ptr<Model> model = std::move(defaultModel);
 
@@ -86,20 +86,14 @@ int main(void) {
       view.camera.reset();
     }
 
-    if (panel::loadPendulumModel) {
-      auto newModel = std::make_unique<SmallAnglePendulumModel>();
+    if (panel::loadSingleSpringModel) {
+      auto newModel = std::make_unique<SingleSpringModel>();
       modelRenderable = makeModelRenderable(*newModel, view);
       model = std::move(newModel);
       panel::playModel = false;
     }
     if (panel::loadDoublePendulumModel) {
       auto newModel = std::make_unique<DoublePendulumModel>();
-      modelRenderable = makeModelRenderable(*newModel, view);
-      model = std::move(newModel);
-      panel::playModel = false;
-    }
-    if (panel::loadParticleModel) {
-      auto newModel = std::make_unique<ParticleModel>();
       modelRenderable = makeModelRenderable(*newModel, view);
       model = std::move(newModel);
       panel::playModel = false;
