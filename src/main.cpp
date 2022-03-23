@@ -47,7 +47,7 @@ int main(void) {
 											  .title("Models, models, models... oh my!")
 											  .glslVersionString("#version 330 core"));
 
-	auto view = View(TurnTable(Latitude(LATITUDE_MAX / 2)), Perspective());
+	auto view = View(TurnTable(), Perspective());
 	// Preset Bindings
 	TurnTableControls controls(window, view.camera);
 

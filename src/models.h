@@ -38,6 +38,10 @@ namespace simulation {
 			velocity += vec3f {0.f, -g, 0.f} * dt;
 		}
 
+		void applyAirResistance(float airK, float dt) {
+			applyForce(-airK * velocity, dt);
+		}
+
 		void applySpeedOnPosition(float dt) {
 			if (isStationary) {
 				return;
@@ -72,18 +76,22 @@ namespace simulation {
 			return -springForce();
 		}
 
+		vec3f dampForce() {
+			auto headForce = headSpringForce();
+			if (glm::length(headForce) == 0) {
+				return vec3f{0.f, 0.f, 0.f};
+			}
+			auto headForceDirection = glm::normalize(headForce);
+			auto velocityDifference = head->velocity - tail->velocity;
+			return -c * (glm::dot(velocityDifference, headForceDirection) * headForceDirection);
+		}
+
 		vec3f headDampForce() {
-			vec3f springVec = glm::normalize(head->position - tail->position);
-			float projectedSpeed = glm::dot(head->velocity, springVec);
-			vec3f dampForce = -projectedSpeed * c * springVec;
-			return dampForce;
+			return dampForce();
 		}
 
 		vec3f tailDampForce() {
-			vec3f springVec = glm::normalize(tail->position - head->position);
-			float projectedSpeed = glm::dot(tail->velocity, springVec);
-			vec3f dampForce = -projectedSpeed * c * springVec;
-			return dampForce;
+			return -dampForce();
 		}
 
 		void applySpringForces(float dt) {
@@ -107,6 +115,7 @@ namespace simulation {
 			}
 			for (auto &particle: particles) {
 				particle->applyGravity(gravity, dt);
+				particle->applyAirResistance(airK, dt);
 			}
 			for (auto &particle: particles) {
 				particle->applySpeedOnPosition(dt);
@@ -114,6 +123,7 @@ namespace simulation {
 		};
 
 		float gravity = 9.81;
+		float airK = .1f;
 		std::vector<std::shared_ptr<Particle>> particles;
 		std::vector<Spring> springs;
 	};
@@ -125,12 +135,13 @@ namespace simulation {
 
 		std::shared_ptr<Particle> head;
 
-		unsigned int particlesCount = 5;
-		float mass = 0.1f;
+		unsigned int particlesCount = 1;
+		float mass = 1.f;
 		float springLength = 3.f;
-		float springRest = 3.f;
+		float springRest = 2.f;
 		float springK = 2;
-		float springC = 0.1;
+		float springC = 0.5;
+		float airK = .1f;
 	};
 
 
@@ -145,8 +156,8 @@ namespace simulation {
 		float springLength = 1.f;
 		float springRest = springLength;
 		float springK = 2500;
-		float springC = 0.5;
-
+		float springC = 1;
+		float airK = .1f;
 		float offset = (resolution - 1) * springLength / 2;
 	};
 
