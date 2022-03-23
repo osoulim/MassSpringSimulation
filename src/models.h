@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include <utility>
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -35,6 +36,13 @@ namespace simulation {
 			velocity += (force / mass) * dt;
 		};
 
+		void applyGravity(float g, float dt) {
+			if (isStationary) {
+				return;
+			}
+			velocity += vec3f {0.f, -g, 0.f} * dt;
+		}
+
 		void applySpeedOnPosition(float dt) {
 			if (isStationary) {
 				return;
@@ -49,6 +57,10 @@ namespace simulation {
 		float restSize = 1.f;
 		float k = 5;
 		float c = 2;
+
+		Spring() = default;
+		Spring (std::shared_ptr<Particle> head, std::shared_ptr<Particle> tail, float restSize, float k, float c)
+			: head(std::move(head)), tail(std::move(tail)), restSize(restSize), k(k), c(c) {};
 
 		vec3f springForce() {
 			vec3f springVec = head->position - tail->position;
@@ -108,35 +120,26 @@ namespace simulation {
 		float springC = 0.1;
 	};
 
-//
-// Double Pendulum
-//
-	class DoublePendulumModel : public Model {
+
+	class ClothModel: public Model {
 	public:
-		DoublePendulumModel();
+		ClothModel();
 
 		void reset() override;
-
 		void step(float dt) override;
 
-		vec3f mass0Position() const;
+		std::vector<std::vector<std::shared_ptr<Particle>>> particles;
+		std::vector<Spring> springs;
 
-		vec3f mass1Position() const;
+		unsigned int clothWidth = 25;
+		float gravity = 9.81f;
+		float mass = 1.f;
+		float springLength = 1.f;
+		float springRest = springLength;
+		float springK = 2500;
+		float springC = 0.7;
 
-	public:
-		// constants
-		float const g = 9.81f;
-		float const l = 10.f; // arm lengths
-		float const m = 1.f;  // mass
-
-		// dependent variables
-		// angle
-		float theta0 = 0.f;
-		float theta1 = 0.f;
-
-		// momentum
-		float p0 = 0.f;
-		float p1 = 0.f;
+		float xOffset = clothWidth * springLength / 2;
 	};
 
 } // namespace simulation

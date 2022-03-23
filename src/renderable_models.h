@@ -18,7 +18,7 @@ using namespace givr::style;
 namespace simulation {
 
 //
-// Pendulum model
+// Chain
 //
 	template <typename View>
 	void render(SingleSpringModel const &model, View const &view) {
@@ -51,33 +51,32 @@ namespace simulation {
 		draw(mass_renderable, view);
 	}
 
-//
-// Double pendulum Model
+	//
+// Chain
 //
 	template <typename View>
-	void render(DoublePendulumModel const &model, View const &view) {
+	void render(ClothModel const &model, View const &view) {
 
-		auto mass_geometry = Sphere(Radius(1.f));
+		auto mass_geometry = Sphere(Radius(.1f));
 		auto mass_style = Phong(Colour(1.f, 0.f, 1.f), //
 								LightPosition(100.f, 100.f, 100.f));
 		static auto mass_renderable =
 				createInstancedRenderable(mass_geometry, mass_style);
-
-		auto m0 = model.mass0Position();
-		auto m1 = model.mass1Position();
-
-		auto M = translate(mat4f{1.f}, m0);
-		addInstance(mass_renderable, M);
-		M = translate(mat4f{1.f}, m1);
-		addInstance(mass_renderable, M);
-
 		static auto arm_renderable =
 				createRenderable(PolyLine<PrimitiveType::LINE_STRIP>(), // geometry
 								 LineStyle(Colour(1.f, 1.f, 0.f))       // style
 				);
 
-		auto arm_geometry = PolyLine<PrimitiveType::LINE_STRIP>(Point(0.f, 0.f, 0.f),
-																Point(m0), Point(m1));
+		auto arm_geometry = PolyLine<PrimitiveType::LINE_STRIP>(Point(0.f, 0.f, 0.f));
+		for (auto &particleArray: model.particles) {
+			for (auto &particle: particleArray) {
+				auto point = particle->position;
+				auto M = translate(mat4f{1.f}, point);
+				addInstance(mass_renderable, M);
+
+				arm_geometry.push_back(Point(point));
+			}
+		}
 
 		updateRenderable(arm_geometry,                     // new position
 						 LineStyle(Colour(1.f, 1.f, 0.f)), // new shading
@@ -87,7 +86,8 @@ namespace simulation {
 		draw(mass_renderable, view);
 	}
 
-//
+
+	//
 // Helper class/functions
 //
 	template <typename View> struct RenderableModel {

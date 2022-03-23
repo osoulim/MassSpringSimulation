@@ -6,13 +6,7 @@ namespace simulation {
 		head = std::make_shared<Particle>(vec3f{0.f, 0.f, 0.f}, mass, true);
 		for (unsigned int i = 0; i < particlesCount; i++) {
 			particles.emplace_back(std::make_shared<Particle>(vec3f{static_cast<float>(i+1) * springLength, 0, 0.f}, mass));
-			Spring spring = Spring();
-			spring.head = i == 0 ? head : particles[i-1];
-			spring.tail = particles[i];
-			spring.k = springK;
-			spring.c = springC;
-			spring.restSize = springRest;
-			springs.emplace_back(spring);
+			springs.emplace_back(Spring(i == 0 ? head : particles[i-1], particles[i], springRest, springK, springC));
 		}
 	}
 
@@ -28,64 +22,74 @@ namespace simulation {
 			spring.applySpringForces(dt);
 		}
 		for (auto &particle: particles) {
-			particle->applyForce(vec3f{0.f, -gravity, 0.f}, dt);
+			particle->applyGravity(gravity, dt);
 		}
 		for (auto &particle: particles) {
 			particle->applySpeedOnPosition(dt);
 		}
 	}
 
-	//
-// Double Pendulum
-//
-	DoublePendulumModel::DoublePendulumModel() { reset(); }
+	ClothModel::ClothModel() {
+		for (unsigned int x = 0; x < clothWidth; x++) {
+			particles.emplace_back(std::vector<std::shared_ptr<Particle>>{});
+			for (unsigned int y = 0; y < clothWidth; y++) {
+				bool isStationary = (x == 0 && (y==0 || y == clothWidth-1));
+				particles[x].emplace_back(std::make_shared<Particle>(
+						vec3f{x * springLength - xOffset, 0, y * springLength},
+						mass,
+						isStationary));
+			}
+		}
 
-	void DoublePendulumModel::reset() {
-		theta0 = 5.f;
-		theta1 = 10.f;
-		p0 = 0.f;
-		p1 = 0.f;
+		for (unsigned int x = 0; x < particles.size(); x++) {
+			for (unsigned int y = 0; y < particles[x].size(); y++) {
+				if (x > 0) { // structural
+					springs.emplace_back(Spring(particles[x][y], particles[x-1][y], springRest, springK, springC));
+				}
+				if (y > 0) { // structural
+					springs.emplace_back(Spring(particles[x][y], particles[x][y-1], springRest, springK, springC));
+				}
+				if (x > 0 && y > 0) { // shear
+					springs.emplace_back(Spring(particles[x][y], particles[x-1][y-1], springRest * sqrt(2.f), springK, springC));
+				}
+				if (x < clothWidth - 1 && y < clothWidth - 1) { // shear
+					springs.emplace_back(Spring(particles[x][y], particles[x+1][y+1], springRest * sqrt(2.f), springK, springC));
+				}
+				if (x > 1) { // flexion
+					springs.emplace_back(Spring(particles[x][y], particles[x-2][y], springRest * 2, springK, springC));
+				}
+				if (y > 1) {
+					springs.emplace_back(Spring(particles[x][y], particles[x][y-2], springRest * 2, springK, springC));
+				}
+			}
+		}
+
 	}
 
-	void DoublePendulumModel::step(float dt) {
-
-		float cosDeltaTheta = std::cos(theta0 - theta1);
-		float sinDeltaTheta = std::sin(theta0 - theta1);
-		float denom = (m * l * l) * (16.f - 9.f * cosDeltaTheta * cosDeltaTheta);
-
-		// velocities
-		float v0 = 6.f * (2.f * p0 - 3.f * cosDeltaTheta * p1) / denom;
-		float v1 = 6.f * (8.f * p1 - 3.f * cosDeltaTheta * p0) / denom;
-
-		// forces
-		float f0 = -(0.5f * m * l * l) *
-				   (v0 * v1 * sinDeltaTheta + 3.f * (g / l) * std::sin(theta0));
-		float f1 = -(0.5f * m * l * l) *
-				   (-v0 * v1 * sinDeltaTheta + (g / l) * std::sin(theta1));
-
-		// update kinematic/dynamic quantites using Euler integration
-		// update momentum
-		p0 = p0 + f0 * dt;
-		p1 = p1 + f1 * dt;
-
-		// Semi-implicit Euler
-		// would use the updated momemnta/velocities for the position updates
-		v0 = 6.f * (2.f * p0 - 3.f * cosDeltaTheta * p1) / denom;
-		v1 = 6.f * (8.f * p1 - 3.f * cosDeltaTheta * p0) / denom;
-
-		// update (angular) positions
-		theta0 = theta0 + v0 * dt;
-		theta1 = theta1 + v1 * dt;
+	void ClothModel::reset() {
+		for (unsigned int x = 0; x < particles.size(); x++) {
+			for (unsigned int y = 0; y < particles[x].size(); y++) {
+				particles[x][y]->position = vec3f{x * springLength - xOffset, 0, y * springLength};
+				particles[x][y]->velocity = vec3f{0.f};
+			}
+		}
 	}
 
-	vec3f DoublePendulumModel::mass0Position() const {
-		return l * vec3f(std::sin(theta0), -std::cos(theta0), 0.f);
+	void ClothModel::step(float dt) {
+		for (auto &spring: springs) {
+			spring.applySpringForces(dt);
+		}
+		for (auto &particleArray: particles) {
+			for (auto &particle: particleArray) {
+				particle->applyGravity(gravity, dt);
+			}
+		}
+		for (auto &particleArray: particles) {
+			for (auto &particle: particleArray) {
+				particle->applySpeedOnPosition(dt);
+			}
+		}
 	}
 
-	vec3f DoublePendulumModel::mass1Position() const {
-		using std::cos;
-		using std::sin;
-		return l * vec3f(sin(theta0) + sin(theta1), -cos(theta0) - cos(theta1), 0.f);
-	}
 
 } // namespace simulation

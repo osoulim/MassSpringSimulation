@@ -18,7 +18,8 @@ namespace panel {
 	extern bool stepModel;
 	extern float dt;
 	extern bool loadSingleSpringModel;
-	extern bool loadDoublePendulumModel;
+	extern bool loadCloth;
+
 
 // reset
 	extern bool resetView;

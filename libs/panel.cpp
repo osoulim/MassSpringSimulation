@@ -5,70 +5,70 @@
 namespace panel {
 
 // default values
-    bool showPanel = true;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	bool showPanel = true;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 // animation
-    bool playModel = false;
-    bool resetModel = false;
-    bool stepModel = false;
-    float dt = 0.05f;
+	bool playModel = false;
+	bool resetModel = false;
+	bool stepModel = false;
+	float dt = 0.01f;
 
-    bool loadSingleSpringModel = false;
-    bool loadDoublePendulumModel = false;
+	bool loadSingleSpringModel = false;
+	bool loadCloth = false;
 
 // reset
-    bool resetView = false;
+	bool resetView = false;
 
-    void updateMenu() {
-      using namespace ImGui;
+	void updateMenu() {
+		using namespace ImGui;
 
-      giv::io::ImGuiBeginFrame();
+		giv::io::ImGuiBeginFrame();
 
-      if (showPanel && Begin("panel", &showPanel, ImGuiWindowFlags_MenuBar)) {
-        if (BeginMenuBar()) {
-          if (BeginMenu("File")) {
-            if (MenuItem("Close", "(P)")) {
-              showPanel = false;
-            }
-            // add more if you would like...
-            ImGui::EndMenu();
-          }
-          EndMenuBar();
-        }
+		if (showPanel && Begin("panel", &showPanel, ImGuiWindowFlags_MenuBar)) {
+			if (BeginMenuBar()) {
+				if (BeginMenu("File")) {
+					if (MenuItem("Close", "(P)")) {
+						showPanel = false;
+					}
+					// add more if you would like...
+					ImGui::EndMenu();
+				}
+				EndMenuBar();
+			}
 
-        Spacing();
-        if (CollapsingHeader("Background Color")) { // Clear
-          ColorEdit3("Clear color", (float *)&clear_color);
-        }
+			Spacing();
+			if (CollapsingHeader("Background Color")) { // Clear
+				ColorEdit3("Clear color", (float *)&clear_color);
+			}
 
-        Spacing();
-        if (CollapsingHeader("Models")) {
-          loadSingleSpringModel = Button("Pendulum");
-          loadDoublePendulumModel = Button("Double Pendulum");
-        }
+			Spacing();
+			if (CollapsingHeader("Models")) {
+				loadSingleSpringModel = Button("Chain of Springs");
+				loadCloth = Button("Cloth");
+			}
 
-        Spacing();
-        Separator();
-        if (Button("Play/Pause")) {
-          playModel = !playModel;
-        }
-        resetModel = Button("Reset Model");
-        stepModel = Button("Step");
-        InputFloat("dt", &dt, 0.00001f, 0.1f, "%.5f");
+			Spacing();
+			Separator();
+			if (Button("Play/Pause")) {
+				playModel = !playModel;
+			}
+			resetModel = Button("Reset Model");
+			stepModel = Button("Step");
+			InputFloat("dt", &dt, 0.00001f, 0.1f, "%.5f");
 
-        Spacing();
-        Separator();
-        resetView = Button("Reset view");
+			Spacing();
+			Separator();
+			resetView = Button("Reset view");
 
-        Spacing();
-        Separator();
-        Text("Application average %.3f ms/frame (%.1f FPS)",
-             1000.0f / GetIO().Framerate, GetIO().Framerate);
+			Spacing();
+			Separator();
+			Text("Application average %.3f ms/frame (%.1f FPS)",
+				 1000.0f / GetIO().Framerate, GetIO().Framerate);
 
-        End();
-      }
-      giv::io::ImGuiEndFrame();
-    }
+			End();
+		}
+		giv::io::ImGuiEndFrame();
+	}
 
 } // namespace panel

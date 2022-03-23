@@ -66,12 +66,11 @@ int main(void) {
 
 	// instanced monkey
 	auto point_geometry = Sphere(Radius(0.25f));
-	auto point_style =
-			Phong(Colour(1.f, 1.f, 0.f), LightPosition(100.f, 100.f, 100.f));
+	auto point_style = Phong(Colour(1.f, 1.f, 0.f), LightPosition(100.f, 100.f, 100.f));
 	auto point_renders = createInstancedRenderable(point_geometry, point_style);
 
 	// this assigns the new model
-	auto defaultModel = std::make_unique<SingleSpringModel>();
+	auto defaultModel = std::make_unique<ClothModel>();
 	auto modelRenderable = makeModelRenderable(*defaultModel, view);
 	std::unique_ptr<Model> model = std::move(defaultModel);
 
@@ -92,8 +91,8 @@ int main(void) {
 			model = std::move(newModel);
 			panel::playModel = false;
 		}
-		if (panel::loadDoublePendulumModel) {
-			auto newModel = std::make_unique<DoublePendulumModel>();
+		if (panel::loadCloth) {
+			auto newModel = std::make_unique<ClothModel>();
 			modelRenderable = makeModelRenderable(*newModel, view);
 			model = std::move(newModel);
 			panel::playModel = false;
