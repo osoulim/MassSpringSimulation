@@ -128,10 +128,12 @@ namespace simulation {
 		void reset() override;
 		void step(float dt) override;
 
-		std::vector<std::vector<std::shared_ptr<Particle>>> particles;
+		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
+
+		std::vector<std::shared_ptr<Particle>> particles;
 		std::vector<Spring> springs;
 
-		unsigned int clothWidth = 25;
+		unsigned int resolution = 25;
 		float gravity = 9.81f;
 		float mass = 1.f;
 		float springLength = 1.f;
@@ -139,7 +141,7 @@ namespace simulation {
 		float springK = 2500;
 		float springC = 0.5;
 
-		float offset = (clothWidth - 1) * springLength / 2;
+		float offset = (resolution - 1) * springLength / 2;
 	};
 
 } // namespace simulation

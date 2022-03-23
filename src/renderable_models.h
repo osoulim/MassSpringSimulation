@@ -63,12 +63,12 @@ namespace simulation {
 		static auto mass_renderable =
 				createRenderable(mass_geometry, mass_style);
 
-		for (unsigned int x = 1; x < model.particles.size(); x++) {
-			for (unsigned int y = 1; y < model.particles[x].size(); y++) {
-				auto p1 = model.particles[x-1][y-1]->position;
-				auto p2 = model.particles[x-1][y]->position;
-				auto p3 = model.particles[x][y-1]->position;
-				auto p4 = model.particles[x][y]->position;
+		for (unsigned int x = 1; x < model.resolution; x++) {
+			for (unsigned int y = 1; y < model.resolution; y++) {
+				auto p1 = model.getParticle(x-1, y-1)->position;
+				auto p2 = model.getParticle(x-1, y)->position;
+				auto p3 = model.getParticle(x, y-1)->position;
+				auto p4 = model.getParticle(x, y)->position;
 
 				mass_geometry.push_back(Triangle{Point1(p1), Point2(p2), Point3(p3)});
 				mass_geometry.push_back(Triangle{Point1(p2), Point2(p4), Point3(p3)});

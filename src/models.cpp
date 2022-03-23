@@ -30,36 +30,35 @@ namespace simulation {
 	}
 
 	ClothModel::ClothModel() {
-		for (unsigned int x = 0; x < clothWidth; x++) {
-			particles.emplace_back(std::vector<std::shared_ptr<Particle>>{});
-			for (unsigned int y = 0; y < clothWidth; y++) {
-				bool isStationary = (x == 0 && (y==0 || y == clothWidth-1));
-				particles[x].emplace_back(std::make_shared<Particle>(
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				bool isStationary = (x == 0 && (y==0 || y == resolution - 1));
+				particles.emplace_back(std::make_shared<Particle>(
 						vec3f{y * springLength - offset, 0, x * springLength},
 						mass,
 						isStationary));
 			}
 		}
 
-		for (unsigned int x = 0; x < particles.size(); x++) {
-			for (unsigned int y = 0; y < particles[x].size(); y++) {
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
 				if (x > 0) { // structural
-					springs.emplace_back(Spring(particles[x][y], particles[x-1][y], springRest, springK, springC));
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 1, y), springRest, springK, springC));
 				}
 				if (y > 0) { // structural
-					springs.emplace_back(Spring(particles[x][y], particles[x][y-1], springRest, springK, springC));
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x, y - 1), springRest, springK, springC));
 				}
 				if (x > 0 && y > 0) { // shear
-					springs.emplace_back(Spring(particles[x][y], particles[x-1][y-1], springRest * sqrt(2.f), springK, springC));
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 1, y - 1), springRest * sqrt(2.f), springK, springC));
 				}
-				if (x < clothWidth - 1 && y < clothWidth - 1) { // shear
-					springs.emplace_back(Spring(particles[x][y], particles[x+1][y+1], springRest * sqrt(2.f), springK, springC));
+				if (x < resolution - 1 && y > 0) { // shear
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x + 1, y - 1), springRest * sqrt(2.f), springK, springC));
 				}
 				if (x > 1) { // flexion
-					springs.emplace_back(Spring(particles[x][y], particles[x-2][y], springRest * 2, springK, springC));
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 2, y), springRest * 2, springK, springC));
 				}
 				if (y > 1) {
-					springs.emplace_back(Spring(particles[x][y], particles[x][y-2], springRest * 2, springK, springC));
+					springs.emplace_back(Spring(getParticle(x, y), getParticle(x, y - 2), springRest * 2, springK, springC));
 				}
 			}
 		}
@@ -67,10 +66,10 @@ namespace simulation {
 	}
 
 	void ClothModel::reset() {
-		for (unsigned int x = 0; x < particles.size(); x++) {
-			for (unsigned int y = 0; y < particles[x].size(); y++) {
-				particles[x][y]->position = vec3f{y * springLength - offset, 0, x * springLength};
-				particles[x][y]->velocity = vec3f{0.f};
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				getParticle(x, y)->position = vec3f{y * springLength - offset, 0, x * springLength};
+				getParticle(x, y)->velocity = vec3f{0.f};
 			}
 		}
 	}
@@ -79,16 +78,16 @@ namespace simulation {
 		for (auto &spring: springs) {
 			spring.applySpringForces(dt);
 		}
-		for (auto &particleArray: particles) {
-			for (auto &particle: particleArray) {
-				particle->applyGravity(gravity, dt);
-			}
+		for (auto &particle: particles) {
+			particle->applyGravity(gravity, dt);
 		}
-		for (auto &particleArray: particles) {
-			for (auto &particle: particleArray) {
-				particle->applySpeedOnPosition(dt);
-			}
+		for (auto &particle: particles) {
+			particle->applySpeedOnPosition(dt);
 		}
+	}
+
+	std::shared_ptr<Particle> ClothModel::getParticle(unsigned x, unsigned y) const {
+		return particles[x * resolution + y];
 	}
 
 
