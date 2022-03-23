@@ -11,6 +11,8 @@ namespace simulation {
 
 	using vec2f = glm::vec2;
 	using vec3f = glm::vec3;
+	using vec2i = glm::ivec2;
+	using vec3i = glm::ivec3;
 
 	struct Particle {
 		explicit Particle(vec3f position, float mass=1.f, bool isStationary=false)
@@ -121,11 +123,20 @@ namespace simulation {
 			for (auto &particle: particles) {
 				particle->applyGravity(gravity, dt);
 				particle->applyAirResistance(airK, dt);
+				if (isColliding(particle)) {
+					applyColliding(particle);
+				}
 			}
 			for (auto &particle: particles) {
 				particle->applySpeedOnPosition(dt);
 			}
 		};
+
+		virtual bool isColliding(std::shared_ptr<Particle> particle) {
+			return false;
+		}
+
+		virtual void applyColliding(std::shared_ptr<Particle> particle) = 0;
 
 		float gravity = 9.81;
 		float airK = .1f;
@@ -164,21 +175,23 @@ namespace simulation {
 		float offset = (resolution - 1) * springLength / 2;
 	};
 
-//	class JellyCubeModel: public Model {
-//	public:
-//		JellyCubeModel();
-//
-//		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
-//
-//		unsigned int resolution = 15;
-//		float mass = 1.f;
-//		float springLength = 0.1f;
-//		float springRest = springLength;
-//		float springK = 250;
-//		float springC = 1;
-//
-//		float offset = (resolution - 1) * springLength / 2;
-//	};
+	class JellyCubeModel: public Model {
+	public:
+		JellyCubeModel();
+
+		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
+		bool isColliding(std::shared_ptr<Particle> particle) override;
+		void applyColliding(std::shared_ptr<Particle> particle) override;
+
+		unsigned int resolution = 10;
+		float mass = 1.f;
+		float springLength = 0.4f;
+		float springRest = springLength;
+		float springK = 250;
+		float springC = 1;
+
+		float offset = (resolution) * springLength * 2;
+	};
 
 
 } // namespace simulation

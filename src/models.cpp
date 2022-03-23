@@ -21,25 +21,26 @@ namespace simulation {
 			}
 		}
 
+		std::vector<vec2i> springConnections {
+			// structural
+			vec2i {-1, 0},
+			vec2i {0, -1},
+			// shear
+			vec2i {-1, -1},
+			vec2i {+1, -1},
+			//flexion
+			vec2i {-2, 0},
+			vec2i {0, -2},
+		};
+
 		for (unsigned int x = 0; x < resolution; x++) {
 			for (unsigned int y = 0; y < resolution; y++) {
-				if (x > 0) { // structural
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 1, y), springK, springC));
-				}
-				if (y > 0) { // structural
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x, y - 1),  springK, springC));
-				}
-				if (x > 0 && y > 0) { // shear
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 1, y - 1), springK, springC));
-				}
-				if (x < resolution - 1 && y > 0) { // shear
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x + 1, y - 1), springK, springC));
-				}
-				if (x > 1) { // flexion
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x - 2, y), springK, springC));
-				}
-				if (y > 1) {
-					springs.emplace_back(Spring(getParticle(x, y), getParticle(x, y - 2), springK, springC));
+				for (auto &springConnection: springConnections) {
+					auto newX = x + springConnection.x;
+					auto newY = y + springConnection.y;
+					if (newX >= 0 && newX < resolution && newY >= 0 && newY < resolution) {
+						springs.emplace_back(Spring(getParticle(x, y), getParticle(newX, newY), springK, springC));
+					}
 				}
 			}
 		}
@@ -50,4 +51,66 @@ namespace simulation {
 		return particles[x * resolution + y];
 	}
 
+	JellyCubeModel::JellyCubeModel() {
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				for (unsigned int z = 0; z < resolution; z++) {
+					particles.emplace_back(std::make_shared<Particle>(
+									vec3f{x, y, z} * springLength + vec3f{0.f, offset, 0.f},
+									mass
+					));
+				}
+			}
+		}
+
+		std::vector<vec3i> springConnections {
+			// structural
+			vec3i {-1, 0, 0},
+			vec3i {0, -1, 0},
+			vec3i {0, 0, -1},
+			// shear
+			vec3i {-1, -1, -1},
+			vec3i {+1, -1, -1},
+			vec3i {+1, +1, -1},
+			vec3i {-1, +1, -1},
+			vec3i {0, -1, -1},
+			vec3i {0, +1, -1},
+			vec3i {-1, 0, -1},
+			vec3i {+1, 0, -1},
+			vec3i {-1, -1, 0},
+			vec3i {+1, -1, 0},
+
+			//flexion
+			vec3i {-2, 0, 0},
+			vec3i {0, -2, 0},
+			vec3i {0, 0, -2},
+		};
+
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				for (unsigned int z = 0; z < resolution; z++) {
+					for (auto &springConnection: springConnections) {
+						auto newX = x + springConnection.x;
+						auto newY = y + springConnection.y;
+						auto newZ = z + springConnection.z;
+						if (newX >= 0 && newX < resolution && newY >= 0 && newY < resolution && newZ >= 0 && newZ < resolution) {
+							springs.emplace_back(Spring(getParticle(x, y, z), getParticle(newX, newY, newZ), springK, springC));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	std::shared_ptr<Particle> JellyCubeModel::getParticle(unsigned int x, unsigned int y, unsigned int z) const {
+		return particles[x * resolution * resolution + y * resolution + z];
+	}
+
+	bool JellyCubeModel::isColliding(std::shared_ptr<Particle> particle) {
+		return particle->position.y <= 0;
+	}
+
+	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle) {
+
+	}
 } // namespace simulation

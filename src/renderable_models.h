@@ -82,6 +82,65 @@ namespace simulation {
 	}
 
 
+	// Jellycube
+//
+	template <typename View>
+	void render(JellyCubeModel const &model, View const &view) {
+
+		auto mass_geometry = TriangleSoup();
+		auto mass_style = Phong(Colour(vec3f{48.f, 120.f, 242.f} / 250.f), //
+								LightPosition(100.f, 100.f, 100.f));
+		static auto mass_renderable =
+				createRenderable(mass_geometry, mass_style);
+
+		auto pos = [&](std::size_t i, std::size_t j, std::size_t k) {
+			return model.getParticle(i, j, k)->position;
+		};
+
+		auto addTriangle = [&](vec3f const &p1, vec3f const &p2, vec3f const &p3) {
+			mass_geometry.push_back(Triangle{Point1(p1), Point2(p2), Point3(p3)});
+		};
+
+		auto resolution = model.resolution;
+		for (std::size_t i = 0; i < resolution; ++i) {
+			for (std::size_t j = 0; j < resolution; ++j) {
+				for (std::size_t k = 0; k < resolution; ++k) {
+					if (i == 0  && j!=0 && k!=0) {
+						addTriangle(pos(i, j-1, k-1), pos(i, j, k), pos(i, j, k-1));
+						addTriangle(pos(i, j-1, k-1), pos(i, j-1, k), pos(i, j, k));
+					}
+					if (i +1 == resolution  && j +1 != resolution && k != 0) {
+						addTriangle(pos(i, j+1, k-1), pos(i, j, k), pos(i, j, k-1));
+						addTriangle(pos(i, j+1, k-1), pos(i, j+1, k), pos(i, j, k));
+					}
+					if (j == 0  && i!=0 && k!=0) {
+						addTriangle(pos(i-1, j, k-1), pos(i, j, k), pos(i, j, k-1));
+						addTriangle(pos(i-1, j, k-1), pos(i-1, j, k), pos(i, j, k));
+					}
+					if (j +1 == resolution  && i +1 != resolution && k != 0) {
+						addTriangle(pos(i+1, j, k-1), pos(i, j, k), pos(i, j, k-1));
+						addTriangle(pos(i+1, j, k-1), pos(i+1, j, k), pos(i, j, k));
+					}
+					if (k == 0  && i!=0 && j!=0) {
+						addTriangle(pos(i-1, j-1, k), pos(i, j, k), pos(i, j-1, k));
+						addTriangle(pos(i-1, j-1, k), pos(i-1, j, k), pos(i, j, k));
+					}
+					if (k +1 == resolution  && i +1 != resolution && j != 0) {
+						addTriangle(pos(i+1, j-1, k), pos(i, j, k), pos(i, j-1, k));
+						addTriangle(pos(i+1, j-1, k), pos(i+1, j, k), pos(i, j, k));
+					}
+				}
+			}
+		}
+
+		updateRenderable(mass_geometry,
+						 mass_style,
+						 mass_renderable);
+		draw(mass_renderable, view);
+	}
+
+
+
 	//
 // Helper class/functions
 //

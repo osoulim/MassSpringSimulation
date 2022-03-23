@@ -19,6 +19,7 @@ namespace panel {
 	extern float dt;
 	extern bool loadSingleSpringModel;
 	extern bool loadCloth;
+	extern bool loadJellyCubeModel;
 
 
 // reset

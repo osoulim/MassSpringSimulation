@@ -70,7 +70,7 @@ int main(void) {
 	auto point_renders = createInstancedRenderable(point_geometry, point_style);
 
 	// this assigns the new model
-	auto defaultModel = std::make_unique<ClothModel>();
+	auto defaultModel = std::make_unique<JellyCubeModel>();
 	auto modelRenderable = makeModelRenderable(*defaultModel, view);
 	std::unique_ptr<Model> model = std::move(defaultModel);
 
@@ -93,6 +93,13 @@ int main(void) {
 		}
 		if (panel::loadCloth) {
 			auto newModel = std::make_unique<ClothModel>();
+			modelRenderable = makeModelRenderable(*newModel, view);
+			model = std::move(newModel);
+			panel::playModel = false;
+		}
+
+		if (panel::loadJellyCubeModel) {
+			auto newModel = std::make_unique<JellyCubeModel>();
 			modelRenderable = makeModelRenderable(*newModel, view);
 			model = std::move(newModel);
 			panel::playModel = false;

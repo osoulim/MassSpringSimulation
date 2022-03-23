@@ -16,6 +16,7 @@ namespace panel {
 
 	bool loadSingleSpringModel = false;
 	bool loadCloth = false;
+	bool loadJellyCubeModel = false;
 
 // reset
 	bool resetView = false;
