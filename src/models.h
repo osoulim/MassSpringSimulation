@@ -143,6 +143,9 @@ namespace simulation {
 	class ChainSpringModel: public Model {
 	public:
 		ChainSpringModel();
+		ChainSpringModel(unsigned int particleCount);
+
+		void createParticlesAndSprings();
 
 		std::shared_ptr<Particle> head;
 

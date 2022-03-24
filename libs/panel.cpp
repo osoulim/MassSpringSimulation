@@ -15,6 +15,7 @@ namespace panel {
 	float dt = 0.01f;
 
 	bool loadSingleSpringModel = false;
+	bool loadSpringChainModel = false;
 	bool loadCloth = false;
 	bool loadJellyCubeModel = false;
 
@@ -45,7 +46,9 @@ namespace panel {
 
 			Spacing();
 			if (CollapsingHeader("Models")) {
-				loadSingleSpringModel = Button("Chain of Springs");
+				loadSingleSpringModel = Button("Single Spring");
+				loadSpringChainModel = Button("Chain of Spring");
+				loadJellyCubeModel = Button("Jelly Cube model");
 				loadCloth = Button("Cloth");
 			}
 

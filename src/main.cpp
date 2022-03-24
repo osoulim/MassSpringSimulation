@@ -47,7 +47,7 @@ int main(void) {
 											  .title("Models, models, models... oh my!")
 											  .glslVersionString("#version 330 core"));
 
-	auto view = View(TurnTable(), Perspective());
+	auto view = View(TurnTable(Latitude(3.14 / 4), Zoom(120.f)), Perspective());
 	// Preset Bindings
 	TurnTableControls controls(window, view.camera);
 
@@ -64,13 +64,8 @@ int main(void) {
 		}
 	});
 
-	// instanced monkey
-	auto point_geometry = Sphere(Radius(0.25f));
-	auto point_style = Phong(Colour(1.f, 1.f, 0.f), LightPosition(100.f, 100.f, 100.f));
-	auto point_renders = createInstancedRenderable(point_geometry, point_style);
-
 	// this assigns the new model
-	auto defaultModel = std::make_unique<JellyCubeModel>();
+	auto defaultModel = std::make_unique<ChainSpringModel>();
 	auto modelRenderable = makeModelRenderable(*defaultModel, view);
 	std::unique_ptr<Model> model = std::move(defaultModel);
 
@@ -86,7 +81,13 @@ int main(void) {
 		}
 
 		if (panel::loadSingleSpringModel) {
-			auto newModel = std::make_unique<ChainSpringModel>();
+			auto newModel = std::make_unique<ChainSpringModel>(1);
+			modelRenderable = makeModelRenderable(*newModel, view);
+			model = std::move(newModel);
+			panel::playModel = false;
+		}
+		if (panel::loadSpringChainModel) {
+			auto newModel = std::make_unique<ChainSpringModel>(12);
 			modelRenderable = makeModelRenderable(*newModel, view);
 			model = std::move(newModel);
 			panel::playModel = false;

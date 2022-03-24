@@ -18,6 +18,7 @@ namespace panel {
 	extern bool stepModel;
 	extern float dt;
 	extern bool loadSingleSpringModel;
+	extern bool loadSpringChainModel;
 	extern bool loadCloth;
 	extern bool loadJellyCubeModel;
 

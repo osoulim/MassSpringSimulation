@@ -4,12 +4,20 @@
 namespace simulation {
 
 	ChainSpringModel::ChainSpringModel() {
+		createParticlesAndSprings();
+	}
+
+	ChainSpringModel::ChainSpringModel(unsigned int particleCount) : particlesCount(particleCount) {
+		createParticlesAndSprings();
+	}
+
+	void ChainSpringModel::createParticlesAndSprings() {
 		head = std::make_shared<Particle>(vec3f{0.f, 0.f, 0.f}, mass, true);
 		for (unsigned int i = 0; i < particlesCount; i++) {
 			particles.emplace_back(std::make_shared<Particle>(vec3f{static_cast<float>(i+1) * springLength, 0, 0.f}, mass));
 			springs.emplace_back(Spring(i == 0 ? head : particles[i-1], particles[i], springRest, springK, springC));
 		}
-	}
+	};
 
 	ClothModel::ClothModel() {
 		for (unsigned int x = 0; x < resolution; x++) {
