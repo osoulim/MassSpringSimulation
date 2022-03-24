@@ -189,5 +189,24 @@ namespace simulation {
 		float offset = (resolution) * springLength * 2;
 	};
 
+	class TableClothModel: public Model {
+	public:
+		TableClothModel();
+
+		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
+		void applyColliding(std::shared_ptr<Particle> particle) override;
+
+		unsigned int resolution = 25;
+		float mass = 1.f;
+		float springLength = 1.f;
+		float springK = 2500;
+		float springC = 1;
+
+		float offset = (resolution - 1) * springLength / 2;
+		vec3f tableCenter = vec3f {offset, 0.f, offset};
+		float tableRadius = offset*0.9;
+	};
+
+
 
 } // namespace simulation

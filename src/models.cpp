@@ -24,7 +24,7 @@ namespace simulation {
 			for (unsigned int y = 0; y < resolution; y++) {
 				bool isStationary = (x == 0 && (y==0 || y == resolution - 1));
 				particles.emplace_back(std::make_shared<Particle>(
-						vec3f{y * springLength - offset, 0, x * springLength},
+						vec3f{x * springLength, offset, y * springLength},
 						mass,
 						isStationary));
 			}
@@ -127,4 +127,60 @@ namespace simulation {
 		particle->velocity.y = abs(particle->velocity.y) * 0.3;
 
 	}
+
+	TableClothModel::TableClothModel() {
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				particles.emplace_back(std::make_shared<Particle>(
+						vec3f{x * springLength, 10.f, y * springLength},
+						mass));
+			}
+		}
+
+		std::vector<vec2i> springConnections {
+				// structural
+				vec2i {-1, 0},
+				vec2i {0, -1},
+				// shear
+				vec2i {-1, -1},
+				vec2i {+1, -1},
+				//flexion
+				vec2i {-2, 0},
+				vec2i {0, -2},
+		};
+
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				for (auto &springConnection: springConnections) {
+					auto newX = x + springConnection.x;
+					auto newY = y + springConnection.y;
+					if (newX >= 0 && newX < resolution && newY >= 0 && newY < resolution) {
+						springs.emplace_back(Spring(getParticle(x, y), getParticle(newX, newY), springK, springC));
+					}
+				}
+			}
+		}
+	}
+
+	std::shared_ptr<Particle> TableClothModel::getParticle(unsigned x, unsigned y) const {
+		return particles[x * resolution + y];
+	}
+
+	void TableClothModel::applyColliding(std::shared_ptr<Particle> particle) {
+		auto &position = particle->position;
+		auto verticalDistance = position.y - tableCenter.y;
+		auto isOnTable = glm::length(vec2f{tableCenter.x, tableCenter.z} - vec2f{position.x, position.z}) < tableRadius;
+		if (verticalDistance > 0) {
+			if (verticalDistance < 0.1 && isOnTable && glm::length(particle->velocity) < 1) {
+				particle->velocity *= 0.05f; // friction
+			}
+		} else if (isOnTable) {
+			if (verticalDistance > -1) {
+				particle->velocity.y = abs(particle->velocity.y) * 0.2;
+			} else if (verticalDistance > -2 && verticalDistance < -1.5 ) {
+				particle->velocity.y = -abs(particle->velocity.y) * 0.2;
+			}
+		}
+	}
+
 } // namespace simulation
