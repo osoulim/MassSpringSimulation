@@ -120,7 +120,7 @@ namespace simulation {
 	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle, float dt) {
 		if (particle->position.y > 0) {
 			if (particle->position.y < 10e-4 && glm::length(particle->velocity) < 1) {
-				particle->velocity = vec3f (0.f); // friction
+				particle->velocity *= 0.1; // friction
 			}
 			return;
 		}

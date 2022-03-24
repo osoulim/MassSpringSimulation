@@ -18,6 +18,7 @@ namespace panel {
 	bool loadSpringChainModel = false;
 	bool loadCloth = false;
 	bool loadJellyCubeModel = false;
+	bool loadTableCloth = false;
 
 // reset
 	bool resetView = false;
@@ -50,6 +51,7 @@ namespace panel {
 				loadSpringChainModel = Button("Chain of Spring");
 				loadJellyCubeModel = Button("Jelly Cube model");
 				loadCloth = Button("Cloth");
+				loadTableCloth = Button("Table Cloth");
 			}
 
 			Spacing();

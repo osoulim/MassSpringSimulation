@@ -21,9 +21,9 @@ namespace panel {
 	extern bool loadSpringChainModel;
 	extern bool loadCloth;
 	extern bool loadJellyCubeModel;
+	extern bool loadTableCloth;
 
-
-// reset
+	// reset
 	extern bool resetView;
 
 	void updateMenu();

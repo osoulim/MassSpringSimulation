@@ -106,6 +106,14 @@ int main(void) {
 			panel::playModel = false;
 		}
 
+		if (panel::loadTableCloth) {
+			auto newModel = std::make_unique<TableClothModel>();
+			modelRenderable = makeModelRenderable(*newModel, view);
+			model = std::move(newModel);
+			panel::playModel = false;
+		}
+
+
 		if (panel::resetModel) {
 			model->reset();
 		}
