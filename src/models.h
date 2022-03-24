@@ -124,14 +124,14 @@ namespace simulation {
 			for (auto &particle: particles) {
 				particle->applyGravity(gravity, dt);
 				particle->applyAirResistance(airK, dt);
-				applyColliding(particle, dt);
+				applyExternalForces(particle, dt);
 			}
 			for (auto &particle: particles) {
 				particle->applySpeedOnPosition(dt);
 			}
 		};
 
-		virtual void applyColliding(std::shared_ptr<Particle> particle, float dt) {};
+		virtual void applyExternalForces(std::shared_ptr<Particle> particle, float dt) {};
 
 		float gravity = 9.81;
 		float airK = .1f;
@@ -178,7 +178,7 @@ namespace simulation {
 		JellyCubeModel();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
-		void applyColliding(std::shared_ptr<Particle> particle, float dt) override;
+		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
 
 		unsigned int resolution = 10;
 		float mass = 0.5f;
@@ -194,7 +194,7 @@ namespace simulation {
 		TableClothModel();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
-		void applyColliding(std::shared_ptr<Particle> particle, float dt) override;
+		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
 
 		unsigned int resolution = 40;
 		float mass = 1.f;
@@ -205,6 +205,22 @@ namespace simulation {
 		float offset = (resolution - 1) * springLength / 2;
 		vec3f tableCenter = vec3f {offset, 0.f, offset};
 		float tableRadius = offset*0.7;
+	};
+
+	class Flag: public Model {
+	public:
+		Flag();
+
+		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
+		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
+
+		unsigned int resolution = 40;
+		float mass = 1.f;
+		float springLength = 25.f / 40.f;
+		float springK = 2500;
+		float springC = 3;
+
+		float offset = (resolution - 1) * springLength / 2;
 	};
 
 

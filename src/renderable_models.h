@@ -181,6 +181,33 @@ namespace simulation {
 	}
 
 
+	template <typename View>
+	void render(Flag const &model, View const &view) {
+
+		auto mass_geometry = TriangleSoup();
+		auto mass_style = Phong(Colour(vec3f{48.f, 120.f, 242.f} / 250.f), //
+								LightPosition(100.f, 100.f, 100.f));
+		static auto mass_renderable =
+				createRenderable(mass_geometry, mass_style);
+
+		for (unsigned int x = 1; x < model.resolution; x++) {
+			for (unsigned int y = 1; y < model.resolution; y++) {
+				auto p1 = model.getParticle(x-1, y-1)->position;
+				auto p2 = model.getParticle(x-1, y)->position;
+				auto p3 = model.getParticle(x, y-1)->position;
+				auto p4 = model.getParticle(x, y)->position;
+
+				mass_geometry.push_back(Triangle{Point1(p1), Point2(p2), Point3(p3)});
+				mass_geometry.push_back(Triangle{Point1(p2), Point2(p4), Point3(p3)});
+			}
+		}
+
+		updateRenderable(mass_geometry,
+						 mass_style,
+						 mass_renderable);
+		draw(mass_renderable, view);
+	}
+
 	//
 // Helper class/functions
 //

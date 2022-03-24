@@ -117,7 +117,7 @@ namespace simulation {
 		return particles[x * resolution * resolution + y * resolution + z];
 	}
 
-	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle, float dt) {
+	void JellyCubeModel::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
 		if (particle->position.y > 0) {
 			if (particle->position.y < 10e-4 && glm::length(particle->velocity) < 1) {
 				particle->velocity *= 0.1; // friction
@@ -166,7 +166,7 @@ namespace simulation {
 		return particles[x * resolution + y];
 	}
 
-	void TableClothModel::applyColliding(std::shared_ptr<Particle> particle, float dt) {
+	void TableClothModel::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
 		auto &position = particle->position;
 		auto nextPosition = particle->position + particle->velocity * dt;
 
@@ -194,4 +194,51 @@ namespace simulation {
 //		}
 	}
 
+	Flag::Flag() {
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				bool isStationary = (x == 0 && (y % 5 == 0 || y == resolution - 1));
+				particles.emplace_back(std::make_shared<Particle>(
+						vec3f{x * springLength, y*springLength , 0.f},
+						mass,
+						isStationary));
+			}
+		}
+
+		std::vector<vec2i> springConnections {
+				// structural
+				vec2i {-1, 0},
+				vec2i {0, -1},
+				// shear
+				vec2i {-1, -1},
+				vec2i {+1, -1},
+				//flexion
+//				vec2i {-2, 0},
+//				vec2i {0, -2},
+		};
+
+		for (unsigned int x = 0; x < resolution; x++) {
+			for (unsigned int y = 0; y < resolution; y++) {
+				for (auto &springConnection: springConnections) {
+					auto newX = x + springConnection.x;
+					auto newY = y + springConnection.y;
+					if (newX >= 0 && newX < resolution && newY >= 0 && newY < resolution) {
+						springs.emplace_back(Spring(getParticle(x, y), getParticle(newX, newY), springK, springC));
+					}
+				}
+			}
+		}
+	}
+
+	std::shared_ptr<Particle> Flag::getParticle(unsigned int x, unsigned int y) const {
+		return particles[x * resolution + y];
+	}
+
+	void Flag::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
+		auto randomDir = [&](float start, float end) {
+			float range = end - start;
+			return static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * range - start;
+		};
+		particle->applyForce(vec3f{20.f, randomDir(0.f, 10.f), randomDir(-1.f, 1.f)}, dt);
+	}
 } // namespace simulation
