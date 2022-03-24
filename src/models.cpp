@@ -117,7 +117,7 @@ namespace simulation {
 		return particles[x * resolution * resolution + y * resolution + z];
 	}
 
-	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle) {
+	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle, float dt) {
 		if (particle->position.y > 0) {
 			if (particle->position.y < 10e-4 && glm::length(particle->velocity) < 1) {
 				particle->velocity = vec3f (0.f); // friction
@@ -145,8 +145,8 @@ namespace simulation {
 				vec2i {-1, -1},
 				vec2i {+1, -1},
 				//flexion
-				vec2i {-2, 0},
-				vec2i {0, -2},
+//				vec2i {-2, 0},
+//				vec2i {0, -2},
 		};
 
 		for (unsigned int x = 0; x < resolution; x++) {
@@ -166,21 +166,32 @@ namespace simulation {
 		return particles[x * resolution + y];
 	}
 
-	void TableClothModel::applyColliding(std::shared_ptr<Particle> particle) {
+	void TableClothModel::applyColliding(std::shared_ptr<Particle> particle, float dt) {
 		auto &position = particle->position;
+		auto nextPosition = particle->position + particle->velocity * dt;
+
 		auto verticalDistance = position.y - tableCenter.y;
+		auto nextVerticalDistance = nextPosition.y - tableCenter.y;
+
 		auto isOnTable = glm::length(vec2f{tableCenter.x, tableCenter.z} - vec2f{position.x, position.z}) < tableRadius;
-		if (verticalDistance > 0) {
-			if (verticalDistance < 0.1 && isOnTable && glm::length(particle->velocity) < 1) {
-				particle->velocity *= 0.05f; // friction
-			}
-		} else if (isOnTable) {
-			if (verticalDistance > -1) {
-				particle->velocity.y = abs(particle->velocity.y) * 0.2;
-			} else if (verticalDistance > -2 && verticalDistance < -1.5 ) {
-				particle->velocity.y = -abs(particle->velocity.y) * 0.2;
-			}
+		auto isNextOnTable = glm::length(vec2f{tableCenter.x, tableCenter.z} - vec2f{nextPosition.x, nextPosition.z}) < tableRadius;
+
+		if (isOnTable && isNextOnTable && verticalDistance * nextVerticalDistance < 0) {
+			particle->velocity.y = -particle->velocity.y;
+			particle->velocity *= 0.01;
 		}
+
+//		if (verticalDistance > 0) {
+//			if (verticalDistance < 0.1 && isOnTable && glm::length(particle->velocity) < 1) {
+//				particle->velocity *= 0.05f; // friction
+//			}
+//		} else if (isOnTable) {
+//			if (verticalDistance > -0.1) {
+//				particle->velocity.y = abs(particle->velocity.y) * 0.2;
+//			} else if (verticalDistance > -2 && verticalDistance < -1.5 ) {
+//				particle->velocity.y = -abs(particle->velocity.y) * 0.2;
+//			}
+//		}
 	}
 
 } // namespace simulation

@@ -124,14 +124,14 @@ namespace simulation {
 			for (auto &particle: particles) {
 				particle->applyGravity(gravity, dt);
 				particle->applyAirResistance(airK, dt);
-				applyColliding(particle);
+				applyColliding(particle, dt);
 			}
 			for (auto &particle: particles) {
 				particle->applySpeedOnPosition(dt);
 			}
 		};
 
-		virtual void applyColliding(std::shared_ptr<Particle> particle) {};
+		virtual void applyColliding(std::shared_ptr<Particle> particle, float dt) {};
 
 		float gravity = 9.81;
 		float airK = .1f;
@@ -151,9 +151,9 @@ namespace simulation {
 
 		unsigned int particlesCount = 1;
 		float mass = 1.f;
-		float springLength = 3.f;
+		float springLength = 2.f;
 		float springRest = 2.f;
-		float springK = 2;
+		float springK = 10;
 		float springC = 0.5;
 	};
 
@@ -164,9 +164,9 @@ namespace simulation {
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
 
-		unsigned int resolution = 25;
+		unsigned int resolution = 40;
 		float mass = 1.f;
-		float springLength = 1.f;
+		float springLength = 25.f / 40.f;
 		float springK = 2500;
 		float springC = 1;
 
@@ -178,7 +178,7 @@ namespace simulation {
 		JellyCubeModel();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
-		void applyColliding(std::shared_ptr<Particle> particle) override;
+		void applyColliding(std::shared_ptr<Particle> particle, float dt) override;
 
 		unsigned int resolution = 10;
 		float mass = 0.5f;
@@ -194,17 +194,17 @@ namespace simulation {
 		TableClothModel();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
-		void applyColliding(std::shared_ptr<Particle> particle) override;
+		void applyColliding(std::shared_ptr<Particle> particle, float dt) override;
 
-		unsigned int resolution = 25;
+		unsigned int resolution = 40;
 		float mass = 1.f;
-		float springLength = 1.f;
-		float springK = 2500;
-		float springC = 1;
+		float springLength = 25.f / 40.f;
+		float springK = 3000;
+		float springC = 2;
 
 		float offset = (resolution - 1) * springLength / 2;
 		vec3f tableCenter = vec3f {offset, 0.f, offset};
-		float tableRadius = offset*0.9;
+		float tableRadius = offset*0.7;
 	};
 
 
