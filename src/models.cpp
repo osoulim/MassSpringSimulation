@@ -1,4 +1,5 @@
 #include "models.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace simulation {
 
@@ -55,8 +56,10 @@ namespace simulation {
 		for (unsigned int x = 0; x < resolution; x++) {
 			for (unsigned int y = 0; y < resolution; y++) {
 				for (unsigned int z = 0; z < resolution; z++) {
+					glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.f), 3.14f / 4, glm::vec3(0.f, 0.f, 1.f));
+					auto point = rotationMatrix * glm::vec4(vec3f{x, y, z} * springLength, 1.f);
 					particles.emplace_back(std::make_shared<Particle>(
-									vec3f{x, y, z} * springLength + vec3f{0.f, offset, 0.f},
+									 vec3f {point.x, point.y, point.z}+ vec3f{0.f, offset, 0.f},
 									mass
 					));
 				}
@@ -81,9 +84,9 @@ namespace simulation {
 			vec3i {+1, -1, 0},
 
 			//flexion
-			vec3i {-2, 0, 0},
-			vec3i {0, -2, 0},
-			vec3i {0, 0, -2},
+//			vec3i {-2, 0, 0},
+//			vec3i {0, -2, 0},
+//			vec3i {0, 0, -2},
 		};
 
 		for (unsigned int x = 0; x < resolution; x++) {
@@ -106,11 +109,14 @@ namespace simulation {
 		return particles[x * resolution * resolution + y * resolution + z];
 	}
 
-	bool JellyCubeModel::isColliding(std::shared_ptr<Particle> particle) {
-		return particle->position.y <= 0;
-	}
-
 	void JellyCubeModel::applyColliding(std::shared_ptr<Particle> particle) {
+		if (particle->position.y > 0) {
+			if (particle->position.y < 10e-4 && glm::length(particle->velocity) < 1) {
+				particle->velocity = vec3f (0.f); // friction
+			}
+			return;
+		}
+		particle->velocity.y = abs(particle->velocity.y) * 0.3;
 
 	}
 } // namespace simulation

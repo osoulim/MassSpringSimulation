@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <glm/glm.hpp>
 
 #include <utility>
@@ -123,20 +124,14 @@ namespace simulation {
 			for (auto &particle: particles) {
 				particle->applyGravity(gravity, dt);
 				particle->applyAirResistance(airK, dt);
-				if (isColliding(particle)) {
-					applyColliding(particle);
-				}
+				applyColliding(particle);
 			}
 			for (auto &particle: particles) {
 				particle->applySpeedOnPosition(dt);
 			}
 		};
 
-		virtual bool isColliding(std::shared_ptr<Particle> particle) {
-			return false;
-		}
-
-		virtual void applyColliding(std::shared_ptr<Particle> particle) = 0;
+		virtual void applyColliding(std::shared_ptr<Particle> particle) {};
 
 		float gravity = 9.81;
 		float airK = .1f;
@@ -180,15 +175,13 @@ namespace simulation {
 		JellyCubeModel();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y, unsigned z) const;
-		bool isColliding(std::shared_ptr<Particle> particle) override;
 		void applyColliding(std::shared_ptr<Particle> particle) override;
 
 		unsigned int resolution = 10;
-		float mass = 1.f;
-		float springLength = 0.4f;
-		float springRest = springLength;
-		float springK = 250;
-		float springC = 1;
+		float mass = 0.5f;
+		float springLength = 1.f;
+		float springK = 150;
+		float springC = 2 * std::sqrt(mass * springK) * 0.9;
 
 		float offset = (resolution) * springLength * 2;
 	};
