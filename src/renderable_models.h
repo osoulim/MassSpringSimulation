@@ -93,6 +93,8 @@ namespace simulation {
 		static auto mass_renderable =
 				createRenderable(mass_geometry, mass_style);
 
+		// Citation: https://givr.readthedocs.io/en/latest/reference-manual/geometry.html#triangle-soup
+
 		auto pos = [&](std::size_t i, std::size_t j, std::size_t k) {
 			return model.getParticle(i, j, k)->position;
 		};
@@ -132,10 +134,21 @@ namespace simulation {
 				}
 			}
 		}
+		//End of Citation
 
 		updateRenderable(mass_geometry,
 						 mass_style,
 						 mass_renderable);
+
+		auto ground_geometry = TriangleSoup();
+		ground_geometry.push_back(Triangle(Point1{vec3f{-1000, 0, 1000}}, Point2{vec3f{1000, 0, -1000}}, Point3{vec3f{-1000, 0, -1000}}));
+		ground_geometry.push_back(Triangle(Point1{vec3f{-1000, 0, 1000}}, Point2{vec3f{1000, 0,  1000}}, Point3{vec3f{ 1000, 0, -1000}}));
+
+		auto ground_style = Phong(Colour(vec3f{1.f, 1.f, 1.f}), //
+								LightPosition(100.f, 100.f, 100.f));
+		static auto ground_renderable = createRenderable(ground_geometry, ground_style);
+
+		draw(ground_renderable, view);
 		draw(mass_renderable, view);
 	}
 
