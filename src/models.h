@@ -200,10 +200,10 @@ namespace simulation {
 		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
 
 		unsigned int resolution = 40;
-		float mass = 1.f;
+		float mass = 3.f;
 		float springLength = 25.f / 40.f;
 		float springK = 3000;
-		float springC = 2;
+		float springC = 8;
 
 		float offset = (resolution - 1) * springLength / 2;
 		vec3f tableCenter = vec3f {offset, 0.f, offset};

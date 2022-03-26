@@ -65,7 +65,7 @@ int main(void) {
 	});
 
 	// this assigns the new model
-	auto defaultModel = std::make_unique<Flag>();
+	auto defaultModel = std::make_unique<ChainSpringModel>(1);
 	auto modelRenderable = makeModelRenderable(*defaultModel, view);
 	std::unique_ptr<Model> model = std::move(defaultModel);
 
