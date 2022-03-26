@@ -241,17 +241,52 @@ namespace simulation {
 //		}
 //	}
 
-	void Flag::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
-		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(particle->position.z + time * 5) + cos(particle->velocity.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
+//	void Flag::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
+//		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(particle->position.z + time * 5) + cos(particle->velocity.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
 //		printf("%f,%f,%f\n", windSpeed.x, windSpeed.y, windSpeed.z);
-		particle->applyForce(1.f * (windSpeed - particle->velocity), dt);
-	}
+//		particle->applyForce(1.f * (windSpeed - particle->velocity), dt);
+//	}
 
 	void Flag::step(float dt) {
 		time += dt;
 		if (time > M_PI) {
 			time - M_PI;
 		}
-		Model::step(dt);
+		for (auto &spring: springs) {
+			spring.applySpringForces(dt);
+		}
+		for (auto &particle: particles) {
+			particle->applyGravity(gravity, dt);
+		}
+		for (unsigned int x = 1; x < resolution; x++) {
+			for (unsigned int y = 1; y < resolution; y++) {
+				auto p1 = getParticle(x-1, y-1);
+				auto p2 = getParticle(x-1, y);
+				auto p3 = getParticle(x, y-1);
+				auto p4 = getParticle(x, y);
+
+				applyWindOnFace(p1, p2, p3, dt);
+				applyWindOnFace(p2, p4, p3, dt);
+			}
+		}
+
+		for (auto &particle: particles) {
+			particle->applySpeedOnPosition(dt);
+		}
+	}
+
+	void Flag::applyWindOnFace(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2, std::shared_ptr<Particle> p3,
+							   float dt) {
+		auto centerPos = (p1->position + p2->position + p3->position) / 3.f;
+		auto centerSpeed = (p1->velocity + p2->velocity + p3->velocity) / 3.f;
+
+		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(centerPos.z + time * 5) + cos(centerPos.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
+		auto edge12 = p1->position - p2->position;
+		auto edge13 = p1->position - p3->position;
+		float area = 0.5f * glm::length(glm::cross(edge12, edge13));
+		auto windForce = 1.f * area * (windSpeed - centerSpeed);
+		p1->applyForce(windForce, dt);
+		p2->applyForce(windForce, dt);
+		p3->applyForce(windForce, dt);
 	}
 } // namespace simulation

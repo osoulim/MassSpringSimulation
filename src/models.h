@@ -215,7 +215,7 @@ namespace simulation {
 		Flag();
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
-		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
+		void applyWindOnFace(std::shared_ptr<Particle> p1, std::shared_ptr<Particle> p2, std::shared_ptr<Particle> p3, float dt);
 		void step(float dt) override;
 
 		unsigned int resolution = 40;
