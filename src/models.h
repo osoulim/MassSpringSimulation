@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <cmath>
 
 namespace simulation {
 
@@ -14,6 +15,8 @@ namespace simulation {
 	using vec3f = glm::vec3;
 	using vec2i = glm::ivec2;
 	using vec3i = glm::ivec3;
+	using std::sin;
+	using std::cos;
 
 	struct Particle {
 		explicit Particle(vec3f position, float mass=1.f, bool isStationary=false)
@@ -110,14 +113,14 @@ namespace simulation {
 
 	struct Model {
 		virtual ~Model() = default;
-		void reset() {
+		virtual void reset() {
 			for (auto &particle: particles) {
 				particle->position = particle->initialPosition;
 				particle->velocity = vec3f{0.f};
 			}
 		};
 
-		void step(float dt) {
+		virtual void step(float dt) {
 			for (auto &spring: springs) {
 				spring.applySpringForces(dt);
 			}
@@ -213,14 +216,24 @@ namespace simulation {
 
 		std::shared_ptr<Particle> getParticle(unsigned x, unsigned y) const;
 		void applyExternalForces(std::shared_ptr<Particle> particle, float dt) override;
+		void step(float dt) override;
 
 		unsigned int resolution = 40;
 		float mass = 1.f;
 		float springLength = 25.f / 40.f;
 		float springK = 2500;
-		float springC = 3;
+		float springC = 0.7;
 
 		float offset = (resolution - 1) * springLength / 2;
+		float time = 0.f;
+
+//		std::vector<vec3f> windSourceLocations = {
+//			vec3f{10.f, 0.f, 10.f},
+//			vec3f{-20.f, 10.f, 0.f},
+//			vec3f{-20.f, 10.f, 20.f},
+//			vec3f{-20.f, 10.f, -33.f},
+//		};
+//		float windScale = 200.f;
 	};
 
 

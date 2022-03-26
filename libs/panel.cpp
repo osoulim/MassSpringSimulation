@@ -19,8 +19,9 @@ namespace panel {
 	bool loadCloth = false;
 	bool loadJellyCubeModel = false;
 	bool loadTableCloth = false;
+	bool loadFlag = false;
 
-// reset
+	// reset
 	bool resetView = false;
 
 	void updateMenu() {
@@ -52,6 +53,7 @@ namespace panel {
 				loadJellyCubeModel = Button("Jelly Cube model");
 				loadCloth = Button("Cloth");
 				loadTableCloth = Button("Table Cloth");
+				loadFlag = Button("Flag");
 			}
 
 			Spacing();

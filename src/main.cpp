@@ -113,6 +113,12 @@ int main(void) {
 			panel::playModel = false;
 		}
 
+		if (panel::loadFlag) {
+			auto newModel = std::make_unique<Flag>();
+			modelRenderable = makeModelRenderable(*newModel, view);
+			model = std::move(newModel);
+			panel::playModel = false;
+		}
 
 		if (panel::resetModel) {
 			model->reset();

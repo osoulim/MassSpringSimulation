@@ -197,7 +197,7 @@ namespace simulation {
 	Flag::Flag() {
 		for (unsigned int x = 0; x < resolution; x++) {
 			for (unsigned int y = 0; y < resolution; y++) {
-				bool isStationary = (x == 0 && (y % 5 == 0 || y == resolution - 1));
+				bool isStationary = (x == 0 && (y % 10 == 0 || y == resolution - 1));
 				particles.emplace_back(std::make_shared<Particle>(
 						vec3f{x * springLength, y*springLength , 0.f},
 						mass,
@@ -213,8 +213,8 @@ namespace simulation {
 				vec2i {-1, -1},
 				vec2i {+1, -1},
 				//flexion
-//				vec2i {-2, 0},
-//				vec2i {0, -2},
+				vec2i {-2, 0},
+				vec2i {0, -2},
 		};
 
 		for (unsigned int x = 0; x < resolution; x++) {
@@ -234,11 +234,24 @@ namespace simulation {
 		return particles[x * resolution + y];
 	}
 
+//	void Flag::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
+//		for (auto &windSourceLocation: windSourceLocations) {
+//			vec3f windSpeed = windScale * (1 / glm::length(particle->position - windSourceLocation)) * glm::normalize(particle->position - windSourceLocation);
+//			particle->applyForce(1.f * (windSpeed - particle->velocity), dt);
+//		}
+//	}
+
 	void Flag::applyExternalForces(std::shared_ptr<Particle> particle, float dt) {
-		auto randomDir = [&](float start, float end) {
-			float range = end - start;
-			return static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * range - start;
-		};
-		particle->applyForce(vec3f{20.f, randomDir(0.f, 10.f), randomDir(-1.f, 1.f)}, dt);
+		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(particle->position.z + time * 5) + cos(particle->velocity.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
+//		printf("%f,%f,%f\n", windSpeed.x, windSpeed.y, windSpeed.z);
+		particle->applyForce(1.f * (windSpeed - particle->velocity), dt);
+	}
+
+	void Flag::step(float dt) {
+		time += dt;
+		if (time > M_PI) {
+			time - M_PI;
+		}
+		Model::step(dt);
 	}
 } // namespace simulation

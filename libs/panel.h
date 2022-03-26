@@ -22,6 +22,7 @@ namespace panel {
 	extern bool loadCloth;
 	extern bool loadJellyCubeModel;
 	extern bool loadTableCloth;
+	extern bool loadFlag;
 
 	// reset
 	extern bool resetView;
