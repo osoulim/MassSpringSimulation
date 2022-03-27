@@ -225,7 +225,7 @@ float springK = 2500;
 float springC = 0.7;
 ```
 
-###Wind simulation
+###Complex Wind Generation
 
 I have started the wind simulation by creating some wind sources, but the result was not interesting. 
 The flag was getting steady very soon as the wind speed was constant in each point. 
