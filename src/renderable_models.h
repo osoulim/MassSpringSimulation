@@ -23,7 +23,7 @@ namespace simulation {
 	template <typename View>
 	void render(ChainSpringModel const &model, View const &view) {
 
-		auto mass_geometry = Sphere(Radius(1.f));
+		auto mass_geometry = Sphere(Radius(.5f));
 		auto mass_style = Phong(Colour(1.f, 0.f, 1.f), //
 								LightPosition(100.f, 100.f, 100.f));
 		static auto mass_renderable =
@@ -162,6 +162,14 @@ namespace simulation {
 		static auto mass_renderable =
 				createRenderable(mass_geometry, mass_style);
 
+		auto table_geometry = Cylinder(
+				Point1(model.tableCenter),
+				Point2(model.tableCenter - vec3{0.f, .5f, 0.f}),
+				Radius(model.tableRadius - 1.f));
+		auto table_style = Phong(Colour(vec3f{1.f, 1.f, 1.f} ), //
+								LightPosition(100.f, 100.f, 100.f));
+		static auto table_renderable = createRenderable(table_geometry, table_style);
+
 		for (unsigned int x = 1; x < model.resolution; x++) {
 			for (unsigned int y = 1; y < model.resolution; y++) {
 				auto p1 = model.getParticle(x-1, y-1)->position;
@@ -178,6 +186,7 @@ namespace simulation {
 						 mass_style,
 						 mass_renderable);
 		draw(mass_renderable, view);
+		draw(table_renderable, view);
 	}
 
 

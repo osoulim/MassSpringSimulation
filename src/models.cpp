@@ -180,18 +180,6 @@ namespace simulation {
 			particle->velocity.y = -particle->velocity.y;
 			particle->velocity *= 0.01;
 		}
-
-//		if (verticalDistance > 0) {
-//			if (verticalDistance < 0.1 && isOnTable && glm::length(particle->velocity) < 1) {
-//				particle->velocity *= 0.05f; // friction
-//			}
-//		} else if (isOnTable) {
-//			if (verticalDistance > -0.1) {
-//				particle->velocity.y = abs(particle->velocity.y) * 0.2;
-//			} else if (verticalDistance > -2 && verticalDistance < -1.5 ) {
-//				particle->velocity.y = -abs(particle->velocity.y) * 0.2;
-//			}
-//		}
 	}
 
 	Flag::Flag() {
@@ -280,7 +268,7 @@ namespace simulation {
 		auto centerPos = (p1->position + p2->position + p3->position) / 3.f;
 		auto centerSpeed = (p1->velocity + p2->velocity + p3->velocity) / 3.f;
 
-		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(centerPos.z + time * 5) + cos(centerPos.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
+		auto windSpeed = 20.f * vec3f {1.5f * abs(sin(centerPos.x + time * 5) + cos(centerPos.y + time * 5)), 0.f, 0.5f * sin(time * 5)};
 		auto edge12 = p1->position - p2->position;
 		auto edge13 = p1->position - p3->position;
 		float area = 0.5f * glm::length(glm::cross(edge12, edge13));

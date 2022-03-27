@@ -154,10 +154,10 @@ namespace simulation {
 
 		unsigned int particlesCount = 1;
 		float mass = 1.f;
-		float springLength = 2.f;
-		float springRest = 2.f;
-		float springK = 10;
-		float springC = 0.5;
+		float springLength = 1.f;
+		float springRest = 1.f;
+		float springK = 20;
+		float springC = 0.3;
 	};
 
 
