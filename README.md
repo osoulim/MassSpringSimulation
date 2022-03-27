@@ -225,7 +225,7 @@ float springK = 2500;
 float springC = 0.7;
 ```
 
-###Complex Wind Generation
+### Complex Wind Generation
 
 I have started the wind simulation by creating some wind sources, but the result was not interesting. 
 The flag was getting steady very soon as the wind speed was constant in each point. 
@@ -243,7 +243,7 @@ Which `20` is the scale of wind, and the `x` is using sin and cos to create peri
 
 Visualization of wind speed in different points of the space. Source: https://steven.codes/blog/cloth-simulation/
 
-###Area based wind effect 
+### Area based wind effect 
 
 As mentioned in ***Animation Aerodynamics***, the effect of wind speed on particle is based on the difference between wind speed 
 and the particle speed. I used this fact on the mesh triangle center. 
